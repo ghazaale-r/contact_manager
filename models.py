@@ -24,24 +24,65 @@ class AbstractUser(ABC):
         # setter _password
         self._password = self.hash_password(new_password)
     
-    
-         
+from database_manager import DatabaseManager
 
 class User(AbstractUser):
-    def __init__(self, username, password):
+    def __init__(self, username, password, user_id=None):
         super().__init__(username, password)
-        self.contacts = [] # Contact object , append
-
-    def len_contacts(self):
-        return len(self.contacts)
+        user_id = user_id
   
     def __str__(self):
         return f"{self.username}_{self.len_contacts()}"
         
-
+    def save(self):
+        if self.user_id: # update
+            query = "update users set password=%s where user_id=%s"
+            params = (self.password, self.user_id)
+        else: # create save
+            query =  """
+                    insert into users (username, password) values (%s, %s)
+                    """
+            params = (self.username, self.password)
+            
+        with db_manager_obj as db:
+            db.execute_query(query, params)
+            # get id , self.user_id = id
+            # 1 , query , returning lastid
+            # 2 , q, select lastval 
+            # 3 , q get by usename , id
+            
+            
+    
+    def delete(self):
+        if self.user_id:
+            with db_manager_obj as db:
+                query = "delete from users where user_id = %s"
+                params = (self.user_id,)
+                db.execute_query(query, params)
+    
+            
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
 class Address:
-    def __init__(self, city, state, street, zip_code):
+    def __init__(self, contact_id, city, state, street, zip_code, addr_id=None):
+        self.contact_id = contact_id
+        self.addr_id = addr_id
+
         self.city = city
         self.state = state
         self.street = street
@@ -53,49 +94,35 @@ class Address:
     def __str__(self):
         return f"{self.city}, {self.state}, {self.street}, {self.zip_code}"
     
-class Contact:
-    def __init__(self, name, email=None):
-        self.name = name
-        self.email = email
-        self.phone = {}
-        self.address_list = [] # city, state, street, zip_code
-       
+class Phone:
+    def __init__(self, contact_id, phone_num, label=None, phone_id=None):
+        self.phone_id = phone_id
+        self.contact_id = contact_id
+        
+        self.phone_num = phone_num
+        
         self.phone_label_counter = 0
         self.default_label = ['home', 'work', 'mobile']
+        if label:
+            self.label = label
+        else:
+            self.set_label(label)
         
-    def add_phone(self, phone_number, label=None):
-        if not label:
-            # generate label
-            if self.default_label:
-                label = self.default_label.pop()
-            else:
-                self.phone_label_counter += 1
-                label = f"phone_{self.phone_label_counter}"
-        self.phone[label] = phone_number
+    def set_label(self, label=None):
+        if self.default_label:
+            self.label = self.default_label.pop()
+        else:
+            self.phone_label_counter += 1
+            self.label = f"phone_{self.phone_label_counter}"
+
         
-    def delete_phone(self, label):
-        del self.phone[label]
-       
-    # address methods
-    def add_address(self, city, state, street, zip_code):
-        addr_obj = Address(city, state, street, zip_code)
-        # self.address_list.append(addr_obj)
-        self.add_address_obj(addr_obj)
-    
-    def add_address_obj(self, addr_obj):
-        self.address_list.append(addr_obj)
+    # def delete_phone(self, label):
+    #     del self.phone[label]
+   
+class Contact:
+    def __init__(self, user_id, name, email=None, contact_id=None):
+        self.user_id = user_id
+        self.contact_id = contact_id
         
-    def show_address(self):
-        for idx, addr in enumerate(self.address_list):
-            print(f"{idx + 1}. {addr}")
-            
-    def remove_address_by_index(self, index):
-        if index in range(len(self.address_list)):
-            # self.address_list.pop(index)
-            del self.address_list[index]
-            
-    def remove_address(self):
-        self.show_address()
-        n = int(input("Enter address id to remove"))
-        n -= 1
-        self.remove_address_by_index(n)
+        self.name = name
+        self.email = email

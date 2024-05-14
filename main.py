@@ -1,61 +1,61 @@
+from database_manager import DatabaseManager
+from model_manager import ModelManager
 from models import User
-from managers import UserFileManager, UserFileManager2, UserFileManager3
 
-def main_list():
-    user_object = User('ali', '123')
-    user_object_2 = User('zahra', '123')
-    users = [
-        User('parsa', '1123'), 
-        User('seyed', '134'), 
-        User('maryam', '1143'),
-        user_object,
-        user_object_2
-    ]
+import hashlib
 
-    user_file_obj = UserFileManager('data')
-    user_file_obj.save_user_list(users) 
-    maryam_obj = user_file_obj.search_user('maryam') 
-    print(maryam_obj.username)
-    print(maryam_obj.password)
+
+db_config = {
+    'dbname': 'm_110',
+    'user' : 'maktab_user',
+    'password' : '123',
+    'host' : 'localhost'
+}
+
+db_manager_obj = DatabaseManager(db_config)
+user_model_manager_obj = ModelManager(db_manager_obj, 'users', User)
+users_obj = user_model_manager_obj.all()
+for user in users_obj:
+    user[0], user[1]
+
+user_model_manager_obj.get(id)
+user_model_manager_obj.filter(column, values)
+
+# show menu
+def display_menu():
+    print("1. Register new user")
+    print("2. Login as user")
+    print("3. Exit")
+    return input("Enter your Choice: ")
+
+
+# register
+def register_user():
+    username = input("Enter your username: ")
+    password = input("Enter your password: ")
     
-def main_dict():
-    user_object = User('ali', '123')
-    user_object_2 = User('zahra', '123')
-    users = {
-        'parsa' :User('parsa', '1123'), 
-        'seyed': User('seyed', '134'), 
-        'maryam' :User('maryam', '1143'),
-        user_object.username : user_object,
-        user_object_2.username : user_object_2
-    }
-
-    user_file_obj = UserFileManager2('data')
-    user_file_obj.save_user_dict(users) 
-    maryam_obj = user_file_obj.search_user('maryam') 
-    print(maryam_obj.username)
-    print(maryam_obj.password)
+    
+# login 
+def login():
+    username = input("Enter your username: ")
+    password = input("Enter your password: ")
+    
+   
 
 def main():
-    user_object = User('ali', '123')
-    user_object_2 = User('zahra', '123')
+    while True:
+        n = display_menu()
+        if n == '1':
+            register_user()
+        elif n == '2':
+            login()
+        elif n == '3':
+            print("Exiting...")
+            break
+        else:
+            print("invalid input")
+    db_manager_obj.close_connection()
     
-    user_file_obj = UserFileManager3('users')
-    user_file_obj.save_user(user_object) 
-    user_file_obj.save_user(user_object_2) 
-    user_file_obj.save_user(User('parsa', '1123')) 
-    user_file_obj.save_user(User('seyed', '134') ) 
-    user_file_obj.save_user(User('maryam', '1143')) 
-    user_file_obj.save_user(User('maryam', '22222')) 
-    
-    maryam_obj = user_file_obj.search_user('maryam') 
-    print(maryam_obj.username)
-    print(maryam_obj.password)
-    
-
 
 if __name__ == '__main__':
-    main_list()
-    print('################################')
-    main_dict()
-    print('################################')
     main()
