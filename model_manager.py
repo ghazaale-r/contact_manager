@@ -28,9 +28,10 @@ class ModelManager:
     
     
     # get one by id : select * from table table_id = id ; filter by id
-    def get(self, column_id, id):
-        q = f"select * from {self.table_name} where {column_id} = %s"
-        params = (id,)
+    # second approad get one by one condition like username not only id cloumn 
+    def get(self, column, value):
+        q = f"select * from {self.table_name} where {column} = %s"
+        params = (value,)
         with self.db_manager as db:
             db.execute_query(q, params)
             row = db.fetch_one() # row = ('3', 'a', '123')
