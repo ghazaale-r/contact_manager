@@ -2,18 +2,21 @@ from abc import ABC, abstractmethod
 import hashlib
 
 class AbstractUser(ABC):
-    def __init__(self, username, password):
+    # def __init__(self, username, password=None):
+    def __init__(self, username, password=None):
         self.username = username
-        self.password = password # plain text 
+        # self.password = password ### call setter method (in setter method do hash password)
+        self._password = password # we MUST to pass the HASHED PASSWORD in intial 
         # self._password = self.hash_password(password) # hashed
         # self._password = None
         
-    def hash_password(self, password):
-        return hashlib.sha256(password.encode()).hexdigest()
+    def hash_password(self, plain_text_password):
+        return hashlib.sha256(plain_text_password.encode()).hexdigest()
     
     def check_password(self, entered_password):
-        return self._password == hashlib.sha256(entered_password.encode()).hexdigest()
-    
+        x = hashlib.sha256(entered_password.encode()).hexdigest()
+        return self._password == x  # True, False
+      
     @property
     def password(self):
         # getter _password
@@ -27,10 +30,35 @@ class AbstractUser(ABC):
 from database_manager import DatabaseManager
 
 class User(AbstractUser):
-    def __init__(self, username, password, user_id=None):
+    manager = None
+    
+    
+    def __init__(self, username, password=None, user_id=None, **kwargs):
         super().__init__(username, password)
-        user_id = user_id
+        self.user_id = user_id
   
+# # روش های ایجاد یک یوزر
+# # استفاده از *args, **kwargs
+# username = 'ali'
+# passwerd = '123'
+# user_obj_1 = User('ali', '123')
+# user_obj_1 = User(username,password)
+# # *args
+# x = ('ali', '123')
+# user_obj_1 = User(x[0],x[1])
+# user_obj_1 = User(*x)  #  *args  # User('ali', '123')
+
+
+# y = {
+#     'username' : ' ali',
+#     'password' : '123'
+# }
+# #kwargs
+# User(username='ali', password='123') 
+# User(password='123', username='ali') 
+# User(**y)
+
+
     def __str__(self):
         return f"{self.username}_{self.len_contacts()}"
         
@@ -44,7 +72,7 @@ class User(AbstractUser):
                     """
             params = (self.username, self.password)
             
-        with db_manager_obj as db:
+        with self.manager.db_manager as db:
             db.execute_query(query, params)
             # get id , self.user_id = id
             # 1 , query , returning lastid
@@ -55,7 +83,7 @@ class User(AbstractUser):
     
     def delete(self):
         if self.user_id:
-            with db_manager_obj as db:
+            with self.manager.db_manager as db:
                 query = "delete from users where user_id = %s"
                 params = (self.user_id,)
                 db.execute_query(query, params)
