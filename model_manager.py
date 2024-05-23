@@ -27,14 +27,22 @@ class ModelManager:
         # return [self.model_class(*row) for row in rows]
     
     
+    def base_filter(self, **kwargs):
+        base_query = f"select * from {self.table_name} where"
+        conditional_query = " and ".join([f"{key} = %s" for key in kwargs.keys()])
+        query = base_query + conditional_query
+        params = tuple(kwargs.values())
+        with self.db_manager as db:        
+            db.execute_query(query, params)
+            return db
+
+
+
     # get one by id : select * from table table_id = id ; filter by id
     # second approad get one by one condition like username not only id cloumn 
-    def get(self, column, value):
-        q = f"select * from {self.table_name} where {column} = %s"
-        params = (value,)
-        with self.db_manager as db:
-            db.execute_query(q, params)
-            row = db.fetch_one() # row = ('3', 'a', '123')
+    def get(self, **kwargs):
+        db = self.base_filter(**kwargs)
+        row = db.fetch_one() # row = ('3', 'a', '123')
             
         # apprach No.1 
         # راه حل اول یک مشکلی دارد اینکه ترتیب مقادیر دریافت شده از دیتابیس
@@ -96,17 +104,11 @@ class ModelManager:
         
         
     # filter : select * from table where columns  = values
-    def filter(self, **kwargs):
+    def filter(self, **kwargs) -> list:
         # key_value={'name':'ali'}
         # key_value={'email':'ali@yahoo.com', 'phone_number': '01912234'}
-        
-        base_query = f"Select * from {self.table_name} where "
-        conditional_query = " and ".join([f"{key} = %s" for key in kwargs.keys()])
-        query = base_query + conditional_query
-        params = tuple(kwargs.values())
-        with self.db_manager as db:
-            db.execute_query(query, params)
-            rows = db.fetch_all()
+        db = self.base_filter(**kwargs)
+        rows = db.fetch_all()       # list of tuples
         
         if rows:
             q = f"Select * FROM {self.table_name} LIMIT 0"
