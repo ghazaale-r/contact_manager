@@ -16,6 +16,7 @@ class DatabaseManager:
         
     def __exit__(self, exc_type, exc_value, exc_traceback):
         # exc  exceptiom 
+        print('exit called.........................')
         if exc_type or exc_value or exc_traceback:
             print(exc_value)
             self.connection.rollback()
