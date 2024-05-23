@@ -36,19 +36,6 @@ class DatabaseManager:
     def fetch_all(self):
         return self.cursor.fetchall()
     
-    def save_user(self, username, password):
-        query =  """
-                insert into users (username, password) values (%s, %s)
-                """
-        params = (username, password)
-        self.execute_query(query, params)
-        
-    def save_contact(self, name, email):
-        query =  """
-                insert into contact (username, password) values (%s, %s)
-                """
-        params = (username, password)
-        self.execute_query(query, params)
             
 
 
