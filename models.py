@@ -148,9 +148,46 @@ class Phone:
     #     del self.phone[label]
    
 class Contact:
+    manager=None
+    table_name='contacts'
+
     def __init__(self, user_id, name, email=None, contact_id=None):
         self.user_id = user_id
-        self.contact_id = contact_id
-        
+        self.contact_id = contact_id        
         self.name = name
         self.email = email
+
+    def save(self):
+        """
+            implement save,create new contact
+            update existing contact
+
+        """
+        # update existing contact
+        if self.contact_id: 
+            query = f"update {self.table_name} set name=%s ,email=%s where contact_id=%d"
+            params = (self.name, self.email, self.contact_id)
+        # save/create new contact
+        else: 
+            query =  f"""
+                    insert into {self.table_name} (name, email, user_id) values (%s, %s, %s)
+                    """
+            params = (self.name, self.email, self.user_id)
+            
+        with self.manager.db_manager as db:
+            db.execute_query(query, params)
+    
+
+    def delete(self):
+        """
+            delete contact from db
+            sample call delete method
+            contact_obj=Contact('ali','ali@yahoo.com')
+            contact_obj.delete()
+        """
+        if self.contact_id:
+            query=f"Delete From {self.table_name} Where contnact_id=%s"
+            params=(self.contact_id,)
+        
+            with self.manager.db_manager as db:
+                db.execute_query(query, params)
