@@ -1,7 +1,7 @@
 # Python Review Project 
 ## contact manager
 
-** The code is currently on the `develop` branch and has not yet been merged into `master`. **
+**Note:** The active development is happening on the `develop` branch. Please check the `develop` branch for the latest updates.
 
 This project is part of a Python course within a comprehensive bootcamp. 
 It is designed to reinforce key Python concepts through a series of exercises and examples. 
